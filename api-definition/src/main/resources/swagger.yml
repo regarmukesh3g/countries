@@ -1,0 +1,146 @@
+swagger: "2.0"
+info:
+  description: "This is a sample server countrystore server.  You can find out more about     Swagger at [http://swagger.io](http://swagger.io) or on [irc.freenode.net, #swagger](http://swagger.io/irc/).      For this sample, you can use the api key `special-key` to test the authorization     filters."
+  version: "1.0.0"
+  title: "Swagger countrystore"
+  termsOfService: "http://swagger.io/terms/"
+  contact:
+    email: "apiteam@swagger.io"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+host: "localhost:8090"
+basePath: "/v2"
+tags:
+  - name: "country"
+    description: "Everything about your countrys"
+    externalDocs:
+      description: "Find out more"
+      url: "http://swagger.io"
+
+schemes:
+  - "https"
+  - "http"
+paths:
+  /countries:
+    get:
+      tags:
+        - "country"
+      summary: "Find country by ID"
+      description: "Returns a single country"
+      operationId: "getAllCountries"
+      produces:
+        - "application/json"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/country'
+        "400":
+          description: "Invalid ID supplied"
+        "404":
+          description: "country not found"
+      security:
+        - api_key: []
+
+  /country/{countryId}:
+    get:
+      tags:
+        - "country"
+      summary: "Find country by ID"
+      description: "Returns a single country"
+      operationId: "getcountryById"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "countryId"
+          in: "path"
+          description: "ID of country to return"
+          required: true
+          type: "integer"
+          format: "int64"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/country"
+        "400":
+          description: "Invalid ID supplied"
+        "404":
+          description: "country not found"
+      security:
+        - api_key: []
+
+  /uploadCountries:
+    post:
+      tags:
+        - "country"
+      summary: "uploads an image"
+      description: ""
+      operationId: "uploadFile"
+      consumes:
+        - "multipart/form-data"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "additionalMetadata"
+          in: "formData"
+          description: "Additional data to pass to server"
+          required: false
+          type: "string"
+        - name: "file"
+          in: "formData"
+          description: "file to upload"
+          required: false
+          type: "file"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/ModelApiResponse"
+      security:
+        - countrystore_auth:
+            - "write:countrys"
+            - "read:countrys"
+
+securityDefinitions:
+  countrystore_auth:
+    type: "oauth2"
+    authorizationUrl: "http://countrystore.swagger.io/oauth/dialog"
+    flow: "implicit"
+    scopes:
+      write:countrys: "modify countrys in your account"
+      read:countrys: "read your countrys"
+  api_key:
+    type: "apiKey"
+    name: "api_key"
+    in: "header"
+definitions:
+
+  country:
+    type: "object"
+    properties:
+      capital:
+        type: "string"
+      currency:
+        type: "string"
+      name:
+        type: "string"
+        example: "doggie"
+    xml:
+      name: "country"
+  ModelApiResponse:
+    type: "object"
+    properties:
+      code:
+        type: "integer"
+        format: "int32"
+      type:
+        type: "string"
+      message:
+        type: "string"
+externalDocs:
+  description: "Find out more about Swagger"
+  url: "http://swagger.io"
